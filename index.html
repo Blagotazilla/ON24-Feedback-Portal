@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Feedback Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .fade-in { animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+    .active-tab { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 600; }
+    .tab-content { transition: all 0.3s ease; }
+    ::-webkit-scrollbar { display: none; }
+    body { -ms-overflow-style:none; scrollbar-width:none; overflow-x:hidden; }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">Open Feedback Hub</h1>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto">Share your thoughts, suggestions, and ideas to help us improve our products and services.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Feedback Form -->
+      <div class="lg:col-span-1 bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-6">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-6">Submit Feedback</h2>
+
+          <!-- Tabs -->
+          <div class="flex border-b border-gray-200 mb-6">
+            <button id="wishlist-tab" class="active-tab px-4 py-2 text-sm font-medium flex items-center"><i class="fas fa-star mr-2"></i> Wish List</button>
+            <button id="improve-tab" class="px-4 py-2 text-sm font-medium flex items-center"><i class="fas fa-tools mr-2"></i> Improvement</button>
+            <button id="feedback-tab" class="px-4 py-2 text-sm font-medium flex items-center"><i class="fas fa-comment mr-2"></i> General</button>
+          </div>
+
+          <form id="feedback-form" class="space-y-4">
+            <!-- Common Fields -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input type="date" id="date" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div>
+                <label for="region" class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                <select id="region" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">Select Region</option>
+                  <option value="APAC">APAC</option>
+                  <option value="North America">North America</option>
+                  <option value="EMEA">EMEA</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Tabs Content -->
+            <div id="wishlist-content" class="tab-content space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Feature Title</label>
+                <input type="text" id="wishlist-title" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="What would you like to see?">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+                <textarea id="wishlist-item" rows="4" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Describe the feature you'd like to see..."></textarea>
+              </div>
+            </div>
+
+            <div id="improve-content" class="tab-content space-y-4 hidden">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Improvement Title</label>
+                <input type="text" id="improve-title" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="What would you like to improve?">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+                <textarea id="improve-item" rows="4" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Describe how we can improve..."></textarea>
+              </div>
+            </div>
+
+            <div id="general-content" class="tab-content space-y-4 hidden">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Feedback Title</label>
+                <input type="text" id="general-title" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Brief summary of your feedback">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Your Feedback</label>
+                <textarea id="general-feedback" rows="4" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Share your thoughts with us..."></textarea>
+              </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="pt-4 border-t border-gray-200">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Upload Feature Image (Optional)</label>
+              <div class="flex items-center justify-center w-full">
+                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <i class="fas fa-cloud-upload-alt text-gray-400 text-2xl mb-2"></i>
+                    <p class="mb-2 text-sm text-gray-500">Click to upload or drag and drop</p>
+                    <p class="text-xs text-gray-500">PNG, JPG (MAX. 2MB)</p>
+                  </div>
+                  <input id="feature-image" type="file" class="hidden" accept="image/*">
+                </label>
+              </div>
+              <div id="image-preview" class="mt-2 hidden">
+                <div class="flex items-center space-x-4">
+                  <img id="preview-image" class="max-h-32 rounded-md">
+                  <div>
+                    <p class="text-sm text-gray-600">(Image) ready for upload</p>
+                    <button type="button" onclick="removeImage()" class="mt-2 text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash mr-1"></i> Remove Image</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="submit-feedback" class="w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"><i class="fas fa-cog mr-2"></i> Feedback and Findings</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Feedback Display -->
+      <div class="lg:col-span-2 space-y-8">
+        <div class="bg-black rounded-xl shadow-md overflow-hidden text-white">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-semibold">Community Scoring</h2>
+            </div>
+            <table class="w-full divide-y divide-gray-700">
+              <thead class="bg-gray-800">
+                <tr>
+                  <th class="px-2 py-2 text-left text-xs">Type</th>
+                  <th class="px-2 py-2 text-left text-xs">Feedback</th>
+                  <th class="px-2 py-2 text-left text-xs">Date</th>
+                  <th class="px-2 py-2 text-left text-xs">Region</th>
+                  <th class="px-2 py-2 text-left text-xs">Email</th>
+                  <th class="px-2 py-2 text-left text-xs">Votes</th>
+                  <th class="px-2 py-2 text-left text-xs">Voting</th>
+                  <th class="px-2 py-2 text-left text-xs">Image</th>
+                  <th class="px-2 py-2 text-left text-xs">Delete</th>
+                </tr>
+              </thead>
+              <tbody id="feedback-table-body" class="bg-gray-900 divide-y divide-gray-700 text-xs"></tbody>
+            </table>
+            <div id="no-feedback" class="text-center py-12">
+              <i class="fas fa-comment-slash text-4xl text-gray-500 mb-4"></i>
+              <h3 class="text-lg font-medium text-gray-300">No feedback yet</h3>
+              <p class="text-gray-400 mt-1">Be the first to share your thoughts!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gallery -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+          <div class="p-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">WishList Approved Gallery</h2>
+            <div id="image-gallery" class="space-y-4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Image Modal -->
+  <div id="full-image-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+    <div class="relative">
+      <img id="full-image" class="max-h-screen max-w-full rounded shadow-lg">
+      <button onclick="document.getElementById('full-image-modal').classList.add('hidden')" class="absolute top-2 right-2 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDC6TzmKjGz6PLI-u5xlqAE1gt18wADm1U",
+      authDomain: "db-for-wishlist.firebaseapp.com",
+      projectId: "db-for-wishlist",
+      storageBucket: "db-for-wishlist.appspot.com",
+      messagingSenderId: "675485770542",
+      appId: "1:675485770542:web:03ba492314815c99c850bf",
+      measurementId: "G-D2NG50QF6R"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Tabs
+    const tabs = { "wishlist": ["wishlist-tab","wishlist-content"], "improve":["improve-tab","improve-content"], "general":["feedback-tab","general-content"] };
+    Object.entries(tabs).forEach(([key,[tabId,contentId]])=>{
+      document.getElementById(tabId).addEventListener("click",()=>{
+        Object.values(tabs).forEach(([tId,cId])=>{
+          document.getElementById(tId).classList.remove("active-tab");
+          document.getElementById(cId).classList.add("hidden");
+        });
+        document.getElementById(tabId).classList.add("active-tab");
+        document.getElementById(contentId).classList.remove("hidden");
+      });
+    });
+
+    // Render feedback from Firebase
+    function renderFeedbackList(feedbackList) {
+      const tbody = document.getElementById("feedback-table-body");
+      const noFeedback = document.getElementById("no-feedback");
+      tbody.innerHTML = "";
+      if(feedbackList.length===0){ noFeedback.classList.remove("hidden"); return; }
+      noFeedback.classList.add("hidden");
+
+      feedbackList.forEach((item)=>{
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="px-2 py-2">${item.type}</td>
+          <td class="px-2 py-2 cursor-pointer text-blue-400" onclick="showDetails('${item.id}')">${item.title}</td>
+          <td class="px-2 py-2">${item.date}</td>
+          <td class="px-2 py-2">${item.region}</td>
+          <td class="px-2 py-2">${item.email}</td>
+          <td class="px-2 py-2">${item.votes}</td>
+          <td class="px-2 py-2">
+            <button onclick="vote('${item.id}',1)" class="text-green-400 mr-1"><i class="fas fa-thumbs-up"></i></button>
+            <button onclick="vote('${item.id}',-1)" class="text-red-400"><i class="fas fa-thumbs-down"></i></button>
+          </td>
+          <td class="px-2 py-2">${item.image? `<img src="${item.image}" class="h-8 w-8 rounded cursor-pointer" onclick="showFullImage('${item.image}')">`:""}</td>
+          <td class="px-2 py-2"><button onclick="deleteFeedback('${item.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Load feedback from Firestore
+    function loadFeedback(){
+      db.collection("feedback").orderBy("date","desc").get().then(snapshot=>{
+        const list=[];
+        snapshot.forEach(doc=>{
+          const data=doc.data();
+          data.id=doc.id;
+          list.push(data);
+          if(data.votes>=5 && data.image){
+            moveToGalleryFirestore(data);
+          }
+        });
+        renderFeedbackList(list);
+      });
+    }
+
+    function addFeedbackToFirestore(feedback){
+      db.collection("feedback").add(feedback).then(docRef=>{
+        loadFeedback();
+      });
+    }
+
+    function updateFeedbackVotes(id, votes){
+      db.collection("feedback").doc(id).update({votes:votes}).then(()=>{ loadFeedback(); });
+    }
+
+    function deleteFeedback(id){
+      db.collection("feedback").doc(id).delete().then(()=>{ loadFeedback(); });
+    }
+
+    function vote(id,val){
+      db.collection("feedback").doc(id).get().then(doc=>{
+        if(doc.exists){
+          const newVotes=doc.data().votes+val;
+          updateFeedbackVotes(id,newVotes);
+          if(newVotes>=5 && doc.data().image){
+            moveToGalleryFirestore(doc.data());
+            deleteFeedback(id);
+          }
+        }
+      });
+    }
+
+    function moveToGalleryFirestore(item){
+      const gallery=document.getElementById("image-gallery");
+      const galleryItem=document.createElement("div");
+      galleryItem.className="bg-white rounded-lg shadow overflow-hidden flex flex-col sm:flex-row";
+      galleryItem.innerHTML=`
+        <div class="relative group flex-shrink-0 w-full sm:w-32">
+          <img src="${item.image}" class="w-full h-32 object-cover">
+          <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <p class="text-white text-center px-2">${item.title}</p>
+          </div>
+        </div>
+        <div class="p-3 flex-1">
+          <h3 class="font-medium text-gray-900">${item.title}</h3>
+          <p class="text-sm text-gray-500 mt-1">${item.details}</p>
+          <div class="mt-2 flex items-center text-sm text-gray-500">
+            <span class="mr-3"><i class="fas fa-thumbs-up mr-1"></i>${item.votes}</span>
+            <span><i class="fas fa-user mr-1"></i>${item.email.split('@')[0]}</span>
+          </div>
+        </div>
+      `;
+      gallery.appendChild(galleryItem);
+    }
+
+    // Form Submit
+    document.getElementById("feedback-form").addEventListener("submit",e=>{
+      e.preventDefault();
+      const email=document.getElementById("email").value;
+      const date=document.getElementById("date").value;
+      const region=document.getElementById("region").value;
+
+      let type,title,details;
+      if(!document.getElementById("wishlist-content").classList.contains("hidden")){
+        type="Wish List"; title=document.getElementById("wishlist-title").value; details=document.getElementById("wishlist-item").value;
+      }else if(!document.getElementById("improve-content").classList.contains("hidden")){
+        type="Improvement"; title=document.getElementById("improve-title").value; details=document.getElementById("improve-item").value;
+      }else{ type="General"; title=document.getElementById("general-title").value; details=document.getElementById("general-feedback").value; }
+
+      const file=document.getElementById("feature-image").files[0];
+      if(file){
+        const reader=new FileReader();
+        reader.onload=function(ev){
+          const feedback={type,title,details,email,date,region,image:ev.target.result,votes:0};
+          addFeedbackToFirestore(feedback);
+        };
+        reader.readAsDataURL(file);
+      }else{
+        const feedback={type,title,details,email,date,region,image:"",votes:0};
+        addFeedbackToFirestore(feedback);
+      }
+
+      document.getElementById("feedback-form").reset();
+      document.getElementById("image-preview").classList.add("hidden");
+    });
+
+    // Image Preview
+    document.getElementById("feature-image").addEventListener("change",e=>{
+      const file=e.target.files[0];
+      if(file){
+        const reader=new FileReader();
+        reader.onload=function(ev){
+          document.getElementById("preview-image").src=ev.target.result;
+          document.getElementById("image-preview").classList.remove("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function removeImage(){
+      document.getElementById("feature-image").value="";
+      document.getElementById("image-preview").classList.add("hidden");
+    }
+
+    function showFullImage(src){
+      document.getElementById("full-image").src=src;
+      document.getElementById("full-image-modal").classList.remove("hidden");
+    }
+
+    function showDetails(id){
+      db.collection("feedback").doc(id).get().then(doc=>{
+        if(doc.exists){
+          const item=doc.data();
+          alert(`Type: ${item.type}\nTitle: ${item.title}\nDetails: ${item.details}\nVotes: ${item.votes}`);
+        }
+      });
+    }
+
+    // Initial load
+    loadFeedback();
+  </script>
+</body>
+</html>
