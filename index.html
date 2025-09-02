@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wishlist Feedback Hub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<style>
+.active-tab { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 600; }
+.tab-content { transition: all 0.3s ease; }
+body { -ms-overflow-style:none; scrollbar-width:none; overflow-x:hidden; }
+.modal-bg { background-color: rgba(0,0,0,0.5); }
+.checkmark { color: green; position: absolute; right: 10px; top: 12px; display: none; }
+.feedback-form { background-color: #fff9db; } /* light yellow */
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">Wishlist Feedback Hub</h1>
+    <p class="text-lg text-gray-600 max-w-3xl mx-auto">Share your feedback to help us improve.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Feedback Form -->
+    <div class="lg:col-span-1 rounded-xl shadow-md overflow-hidden feedback-form relative">
+      <div class="p-6 relative">
+        <div class="flex items-center mb-6">
+          <h2 class="text-2xl font-semibold text-gray-800 mr-4">Feedback Form</h2>
+          <i class="fas fa-keyboard text-gray-600 text-3xl"></i>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+          <button id="wishlist-tab" class="active-tab px-4 py-2 text-sm font-medium flex items-center"><i class="fas fa-star mr-2"></i> Wishlist</button>
+          <button id="improve-tab" class="px-4 py-2 text-sm font-medium flex items-center"><i class="fas fa-tools mr-2"></i> Improvement</button>
+          <button id="feedback-tab" class="px-4 py-2 text-sm font-medium flex items-center"><i class="fas fa-comment mr-2"></i> General</button>
+        </div>
+
+        <!-- Form -->
+        <form id="feedback-form" class="space-y-4 relative">
+          <div class="relative">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="email" required class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+            <i class="fas fa-check-circle checkmark" id="check-email"></i>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <input type="date" id="date" required class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <i class="fas fa-check-circle checkmark" id="check-date"></i>
+            </div>
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Region</label>
+              <select id="region" required class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Select Region</option>
+                <option value="APAC">APAC</option>
+                <option value="North America">North America</option>
+                <option value="EMEA">EMEA</option>
+                <option value="Other">Other</option>
+              </select>
+              <i class="fas fa-check-circle checkmark" id="check-region"></i>
+            </div>
+          </div>
+
+          <!-- Wishlist -->
+          <div id="wishlist-content" class="tab-content space-y-4">
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Feature Title</label>
+              <input type="text" id="wishlist-title" placeholder="Feature title" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <i class="fas fa-check-circle checkmark" id="check-wishlist-title"></i>
+            </div>
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+              <textarea id="wishlist-item" rows="4" placeholder="Describe the feature" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+              <i class="fas fa-check-circle checkmark" id="check-wishlist-item"></i>
+            </div>
+          </div>
+
+          <!-- Improvement -->
+          <div id="improve-content" class="tab-content space-y-4 hidden">
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Improvement Title</label>
+              <input type="text" id="improve-title" placeholder="Improvement title" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <i class="fas fa-check-circle checkmark" id="check-improve-title"></i>
+            </div>
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+              <textarea id="improve-item" rows="4" placeholder="Describe improvement" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+              <i class="fas fa-check-circle checkmark" id="check-improve-item"></i>
+            </div>
+          </div>
+
+          <!-- General -->
+          <div id="general-content" class="tab-content space-y-4 hidden">
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Feedback Title</label>
+              <input type="text" id="general-title" placeholder="Summary" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+              <i class="fas fa-check-circle checkmark" id="check-general-title"></i>
+            </div>
+            <div class="relative">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Feedback</label>
+              <textarea id="general-feedback" rows="4" placeholder="Details" class="w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+              <i class="fas fa-check-circle checkmark" id="check-general-feedback"></i>
+            </div>
+          </div>
+
+          <button type="submit" id="submit-feedback" disabled class="w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed">Submit Feedback</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Community Scoring -->
+    <div class="lg:col-span-2 space-y-8">
+      <div class="bg-black rounded-xl shadow-md overflow-hidden text-white">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-semibold">Community Scoring</h2>
+            <button id="export-btn" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded">Export to Notepad</button>
+          </div>
+          <table class="w-full divide-y divide-gray-700">
+            <thead class="bg-gray-800">
+              <tr>
+                <th class="px-2 py-2 text-left text-xs">Type</th>
+                <th class="px-2 py-2 text-left text-xs">Title</th>
+                <th class="px-2 py-2 text-left text-xs">Date</th>
+                <th class="px-2 py-2 text-left text-xs">Region</th>
+                <th class="px-2 py-2 text-left text-xs">Email</th>
+                <th class="px-2 py-2 text-left text-xs">Votes</th>
+                <th class="px-2 py-2 text-left text-xs">Vote</th>
+                <th class="px-2 py-2 text-left text-xs">Delete</th>
+              </tr>
+            </thead>
+            <tbody id="feedback-table-body" class="bg-gray-900 divide-y divide-gray-700 text-xs"></tbody>
+          </table>
+          <div id="no-feedback" class="text-center py-12 text-gray-400">No feedback yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="details-modal" class="fixed inset-0 hidden items-center justify-center modal-bg">
+  <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+    <h3 class="text-xl font-semibold mb-4" id="modal-title"></h3>
+    <p class="text-gray-700 mb-4" id="modal-details"></p>
+    <button id="modal-close" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, serverTimestamp, increment, query, orderBy } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDC6TzmKjGz6PLI-u5xlqAE1gt18wADm1U",
+  authDomain: "db-for-wishlist.firebaseapp.com",
+  projectId: "db-for-wishlist",
+  storageBucket: "db-for-wishlist.appspot.com",
+  messagingSenderId: "675485770542",
+  appId: "1:675485770542:web:03ba492314815c99c850bf"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Tabs
+const tabs = { wishlist:["wishlist-tab","wishlist-content"], improve:["improve-tab","improve-content"], general:["feedback-tab","general-content"] };
+Object.entries(tabs).forEach(([key,[tabId,contentId]])=>{
+  document.getElementById(tabId).addEventListener("click",()=>{
+    Object.values(tabs).forEach(([tId,cId])=>{
+      document.getElementById(tId).classList.remove("active-tab");
+      document.getElementById(cId).classList.add("hidden");
+    });
+    document.getElementById(tabId).classList.add("active-tab");
+    document.getElementById(contentId).classList.remove("hidden");
+    validateForm();
+  });
+});
+
+// Validation + checkmarks
+const submitBtn=document.getElementById("submit-feedback");
+const fields = [
+  ["email","check-email"],
+  ["date","check-date"],
+  ["region","check-region"],
+  ["wishlist-title","check-wishlist-title"],
+  ["wishlist-item","check-wishlist-item"],
+  ["improve-title","check-improve-title"],
+  ["improve-item","check-improve-item"],
+  ["general-title","check-general-title"],
+  ["general-feedback","check-general-feedback"]
+];
+function validateForm(){
+  const email=document.getElementById("email").value.trim();
+  const date=document.getElementById("date").value.trim();
+  const region=document.getElementById("region").value.trim();
+  const activeTabId=document.querySelector(".active-tab").id;
+  let isValid=email&&date&&region;
+  if(activeTabId==="wishlist-tab") isValid=isValid && document.getElementById("wishlist-title").value.trim() && document.getElementById("wishlist-item").value.trim();
+  else if(activeTabId==="improve-tab") isValid=isValid && document.getElementById("improve-title").value.trim() && document.getElementById("improve-item").value.trim();
+  else isValid=isValid && document.getElementById("general-title").value.trim() && document.getElementById("general-feedback").value.trim();
+
+  // show checkmarks
+  fields.forEach(([inputId,checkId])=>{
+    const el=document.getElementById(inputId);
+    const check=document.getElementById(checkId);
+    if(el && check){ check.style.display=el.value.trim()?"inline-block":"none"; }
+  });
+
+  submitBtn.disabled = !isValid;
+  submitBtn.className = isValid
+    ?"w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+    :"w-full flex justify-center py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed";
+}
+document.querySelectorAll("#feedback-form input,#feedback-form textarea,#feedback-form select").forEach(el=>el.addEventListener("input",validateForm));
+
+// Submit
+document.getElementById("feedback-form").addEventListener("submit",async e=>{
+  e.preventDefault();
+  submitBtn.disabled=true; submitBtn.textContent="Submitting...";
+  try{
+    const activeTabId=document.querySelector(".active-tab").id;
+    let title="", details="", type="";
+    if(activeTabId==="wishlist-tab"){ title=document.getElementById("wishlist-title").value.trim(); details=document.getElementById("wishlist-item").value.trim(); type="Wishlist"; }
+    else if(activeTabId==="improve-tab"){ title=document.getElementById("improve-title").value.trim(); details=document.getElementById("improve-item").value.trim(); type="Improvement"; }
+    else{ title=document.getElementById("general-title").value.trim(); details=document.getElementById("general-feedback").value.trim(); type="General"; }
+    const email=document.getElementById("email").value.trim();
+    const date=document.getElementById("date").value.trim();
+    const region=document.getElementById("region").value.trim();
+    await addDoc(collection(db,"feedback"),{title,details,type,email,date,region,votes:0,createdAt:serverTimestamp()});
+    document.getElementById("feedback-form").reset();
+    validateForm();
+  }catch(err){ console.error(err); alert("Error submitting feedback."); }
+  finally{ submitBtn.disabled=false; submitBtn.textContent="Submit Feedback"; }
+});
+
+// Live feedback with gold highlight for 5+ votes
+const feedbackBody=document.getElementById("feedback-table-body");
+const noFeedback=document.getElementById("no-feedback");
+function loadFeedback(){
+  const q=query(collection(db,"feedback"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
+    feedbackBody.innerHTML="";
+    if(snap.empty){ noFeedback.classList.remove("hidden"); return; }
+    noFeedback.classList.add("hidden");
+    snap.forEach(docSnap=>{
+      const d=docSnap.data();
+      const row=document.createElement("tr");
+
+      // Gold highlight if votes >=5
+      let rowStyle="", voteButtonHtml=`<button class="vote-btn bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded" data-id="${docSnap.id}">Vote</button>`;
+      if(d.votes>=5){
+        rowStyle="background-color: gold; color: black;";
+        voteButtonHtml=""; // Remove vote button
+      }
+
+      row.innerHTML=`
+        <td class="px-2 py-2" style="${rowStyle}">${d.type||""}</td>
+        <td class="px-2 py-2" style="${rowStyle}"><span class="title-link cursor-pointer underline" data-details="${d.details}">${d.title||""}</span></td>
+        <td class="px-2 py-2" style="${rowStyle}">${d.date||""}</td>
+        <td class="px-2 py-2" style="${rowStyle}">${d.region||""}</td>
+        <td class="px-2 py-2" style="${rowStyle}">${d.email||""}</td>
+        <td class="px-2 py-2" style="${rowStyle}">${d.votes||0}</td>
+        <td class="px-2 py-2">${voteButtonHtml}</td>
+        <td class="px-2 py-2"><button class="delete-btn bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded" data-id="${docSnap.id}">Delete</button></td>
+      `;
+      feedbackBody.appendChild(row);
+    });
+
+    document.querySelectorAll(".vote-btn").forEach(btn=>btn.onclick=()=>updateDoc(doc(db,"feedback",btn.dataset.id),{votes:increment(1)}));
+    document.querySelectorAll(".delete-btn").forEach(btn=>btn.onclick=()=>{if(confirm("Delete this feedback?")) deleteDoc(doc(db,"feedback",btn.dataset.id));});
+
+    document.querySelectorAll(".title-link").forEach(link=>{
+      link.onclick=()=>{
+        document.getElementById("modal-title").textContent=link.textContent;
+        document.getElementById("modal-details").textContent=link.dataset.details;
+        document.getElementById("details-modal").classList.remove("hidden");
+      };
+    });
+  });
+}
+loadFeedback();
+document.getElementById("modal-close").onclick=()=>document.getElementById("details-modal").classList.add("hidden");
+
+// Export
+document.getElementById("export-btn").onclick=()=>{
+  let text="Type\tTitle\tDate\tRegion\tEmail\tVotes\n";
+  feedbackBody.querySelectorAll("tr").forEach(r=>{
+    let cols=Array.from(r.querySelectorAll("td")).slice(0,6).map(td=>td.textContent.trim());
+    text+=cols.join("\t")+"\n";
+  });
+  const blob=new Blob([text],{type:"text/plain"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="community_scoring.txt";
+  document.body.appendChild(a); a.click(); a.remove();
+};
+</script>
+</body>
+</html>
